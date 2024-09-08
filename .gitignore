@@ -1,0 +1,6 @@
+models/
+data/
+*.json
+*.jsonl
+*.pyc
+__pycache__/
