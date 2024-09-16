@@ -19,7 +19,7 @@ from llmlingua import PromptCompressor
 
 import utils
 
-parser = argparse.ArgumentParser(description="compress any prompt.")
+parser = argparse.ArgumentParser(description="Compress Prompt")
 parser.add_argument("--model_path", type=str, default="models/")
 parser.add_argument("--model_name", type=str, default="Phi-3-medium-4k-instruct")
 parser.add_argument("--data_path", type=str, default="data/")
@@ -27,20 +27,18 @@ parser.add_argument("--dataset", type=str, default="test_dataset.jsonl")
 parser.add_argument("--output", type=str, default="compressed.jsonl")
 parser.add_argument("--compressor", type=str, default="roberta")
 parser.add_argument(
-    "--compression_rate", help="compression rate", type=float, default=0.7
-)
-parser.add_argument(
-    "--target_token", help="number of target tokens", type=int, default=-1
-)
-parser.add_argument(
     "--force_tokens",
     help="the tokens which will be forcely preserved, empty space separated",
     type=str,
     default=None,
 )
-parser.add_argument("--keep_last_sentence", type=int, default=0)
+parser.add_argument(
+    "--rate", help="compression rate", type=float, default=0.5
+)
+parser.add_argument(
+    "--target_token", help="number of target tokens", type=int, default=-1
+)
 parser.add_argument("--use_llmlingua2", action=argparse.BooleanOptionalAction, default=True)
-parser.add_argument("--use_context_level_filter", action=argparse.BooleanOptionalAction, default=False)
 parser.add_argument('--seed',type=int, default=0)
 parser.add_argument("--batch_size", type=int, default=1)
 
@@ -95,7 +93,9 @@ COMPRESSOR_MAP = {
 }
 compressor_id = COMPRESSOR_MAP[config.compressor]
 
-llm_lingua = PromptCompressor(compressor_id, device_map="auto", use_llmlingua2=config.use_llmlingua2)
+llm_lingua = PromptCompressor(compressor_id, 
+                        device_map="auto",
+                        use_llmlingua2=config.use_llmlingua2)
 
 if config.force_tokens is not None:
     config.force_tokens = [str(item).replace("\\n", "\n") for item in config.force_tokens.split()]
@@ -111,11 +111,9 @@ def compress(content):
   
     comp_dict = llm_lingua.compress_prompt(
         context='\n'.join([instruction, question]),
-        keep_last_sentence=config.keep_last_sentence,
-        rate=config.compression_rate  if len(question) < 150 else 0.5,
-        target_token=-1 if len(question) < 150 else config.target_token,
+        rate=config.rate,
+        target_token=config.target_token,
         force_tokens=config.force_tokens,
-        use_context_level_filter= config.use_context_level_filter,
     )
 
     comp = re.sub(r'\n\s+', '\n', comp_dict['compressed_prompt']).replace('question:', '\nquestion:')
