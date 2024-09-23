@@ -19,9 +19,9 @@ llm = LLM(
     model=MODELZOO["phi3-14b"],
     tensor_parallel_size=1,
     speculative_model=MODELZOO["phi3-3.8b"],
-    num_speculative_tokens=5,
+    num_speculative_tokens=7,
     use_v2_block_manager=True,
-    max_model_len=100,  # Decrease this value to match the cache limit
+    max_model_len=100, # Decrease this value to match the cache limit
 )
 
 data = load_dataset("json", data_files="./data/test_dataset.jsonl")['train']
