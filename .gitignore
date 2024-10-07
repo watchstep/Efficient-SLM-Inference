@@ -1,0 +1,7 @@
+models/
+data/
+*.json
+*.jsonl
+*.gguf
+*.pyc
+__pycache__/
